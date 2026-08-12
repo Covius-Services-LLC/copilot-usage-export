@@ -1,36 +1,32 @@
 # Copilot Usage Export Script
 
-## Quick Start
+## Setup
 
-Clone or copy the script anywhere, then run it from the script's directory:
+Copy `Export-CopilotUsage.ps1` into your `$HOME\.copilot\` directory:
 
-```powershell
-# From the folder where you saved Export-CopilotUsage.ps1:
-powershell -ExecutionPolicy Bypass -NoProfile -File ".\Export-CopilotUsage.ps1"
+```
+%USERPROFILE%\.copilot\Export-CopilotUsage.ps1
 ```
 
-The script auto-detects your session-state data in this order:
-1. A `session-state\` folder **beside the script** (useful if you symlink/copy to a custom location)
-2. The default GitHub Copilot install at `$HOME\.copilot\session-state\`
+## Quick Start
+
+### Export all sessions to CSV:
+```powershell
+powershell -ExecutionPolicy Bypass -NoProfile -Command "& '$HOME\.copilot\Export-CopilotUsage.ps1'"
+```
 
 ### Export last N sessions only:
 ```powershell
-powershell -ExecutionPolicy Bypass -NoProfile -File ".\Export-CopilotUsage.ps1" -Last 10
+powershell -ExecutionPolicy Bypass -NoProfile -Command "& '$HOME\.copilot\Export-CopilotUsage.ps1' -Last 10"
 ```
 
 ### Export to a custom output path:
 ```powershell
-powershell -ExecutionPolicy Bypass -NoProfile -File ".\Export-CopilotUsage.ps1" -OutputPath 'C:\Reports\copilot-usage.csv'
-```
-
-### Point at a custom session-state folder:
-```powershell
-powershell -ExecutionPolicy Bypass -NoProfile -File ".\Export-CopilotUsage.ps1" -SourceRoot 'D:\CopilotData\session-state'
+powershell -ExecutionPolicy Bypass -NoProfile -Command "& '$HOME\.copilot\Export-CopilotUsage.ps1' -OutputPath 'C:\Reports\copilot-usage.csv'"
 ```
 
 ## Output Location
-By default, the CSV is written **beside the script** as `copilot-usage.csv`.  
-Override with `-OutputPath` to write anywhere.
+By default: `$HOME\.copilot\copilot-usage.csv`
 
 ## What Gets Captured
 

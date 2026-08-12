@@ -2,29 +2,11 @@
 
 [CmdletBinding()]
 param(
-    # Default: session-state folder beside this script, or $HOME\.copilot\session-state if running from a GitHub Copilot install
-    [string]$SourceRoot,
-    [string]$OutputPath,
+    [string]$SourceRoot = (Join-Path $HOME '.copilot\session-state'),
+    [string]$OutputPath = (Join-Path $HOME '.copilot\copilot-usage.csv'),
     [ValidateRange(1, [int]::MaxValue)]
     [int]$Last
 )
-
-# Resolve defaults at runtime so the script works from any location
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-if (-not $SourceRoot) {
-    $localSessionState = Join-Path $scriptDir 'session-state'
-    $homeSessionState  = Join-Path $HOME '.copilot\session-state'
-    if (Test-Path -LiteralPath $localSessionState -PathType Container) {
-        $SourceRoot = $localSessionState
-    } elseif (Test-Path -LiteralPath $homeSessionState -PathType Container) {
-        $SourceRoot = $homeSessionState
-    } else {
-        $SourceRoot = $localSessionState  # will fail below with a clear message
-    }
-}
-if (-not $OutputPath) {
-    $OutputPath = Join-Path $scriptDir 'copilot-usage.csv'
-}
 
 $ErrorActionPreference = 'Stop'
 $invariantCulture = [System.Globalization.CultureInfo]::InvariantCulture
