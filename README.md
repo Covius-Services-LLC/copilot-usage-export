@@ -54,7 +54,8 @@ By default: `$HOME\.copilot\copilot-usage.csv`
 - `EndTimeUtc`: Last event time in UTC (HH:mm:ss format)
 - `Repository`: Repo name (if applicable)
 - `Branch`: Git branch (if applicable)
-- `HostType`: Translated repository host (`GitHub` or `Azure DevOps`)
+- `RepoLocation`: Translated repository host (`GitHub` or `Azure DevOps`)
+- `ClientName`: Client recorded in `workspace.yaml` (for example, `vscode`, `github/cli`, or `github/autopilot`)
 - `InitialModel`: Model selected at session start
 - `Models`: All models used in session
 - `UserMessages`: Number of user inputs/messages
@@ -68,7 +69,9 @@ By default: `$HOME\.copilot\copilot-usage.csv`
 - `TotalPremiumRequests`: Premium request count
 - `ParseErrors`: JSON parsing errors in log
 
-`HostType` identifies the repository hosting service, not whether the session came from an IDE or CLI/App. The available event logs currently identify the producer as `copilot-agent`, so they do not expose a reliable IDE-versus-CLI field.
+`RepoLocation` identifies the repository hosting service, not whether the session came from an IDE or CLI/App. The available event logs currently identify the producer as `copilot-agent`, so they do not expose a reliable IDE-versus-CLI field.
+
+`ClientName` is read from the session's adjacent `workspace.yaml` when available. It is useful for comparing client populations, but the exporter preserves the recorded values rather than translating them into an IDE-versus-CLI classification.
 
 ## Notes
 - Usage checkpoints available from Copilot v1.0.73+ (July 23, 2026)

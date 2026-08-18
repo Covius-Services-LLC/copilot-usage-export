@@ -11,14 +11,31 @@ param(
 $ErrorActionPreference = 'Stop'
 $invariantCulture = [System.Globalization.CultureInfo]::InvariantCulture
 
-function Convert-HostType {
-    param([string]$HostType)
+function Convert-RepoLocation {
+    param([string]$RepoLocation)
 
-    switch ($HostType.ToLowerInvariant()) {
+    switch ($RepoLocation.ToLowerInvariant()) {
         'ado' { return 'Azure DevOps' }
         'github' { return 'GitHub' }
-        default { return $HostType }
+        default { return $RepoLocation }
     }
+}
+
+function Get-WorkspaceMetadata {
+    param([string]$Path)
+
+    $metadata = @{}
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        return $metadata
+    }
+
+    foreach ($line in [System.IO.File]::ReadLines($Path)) {
+        if ($line -match '^(client_name):\s*(.*)$') {
+            $metadata[$matches[1]] = $matches[2].Trim()
+        }
+    }
+
+    return $metadata
 }
 
 if (-not (Test-Path -LiteralPath $SourceRoot -PathType Container)) {
@@ -44,7 +61,8 @@ foreach ($eventFile in $eventFiles) {
     $endTimeUtc = $null
     $repository = $null
     $branch = $null
-    $hostType = $null
+    $repoLocation = $null
+    $clientName = $null
     $initialModel = $null
     $latestCheckpoint = $null
     $latestCheckpointTimeUtc = $null
@@ -54,6 +72,12 @@ foreach ($eventFile in $eventFiles) {
     $parseErrors = 0
     $models = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     $outputTokensByMessage = @{}
+
+    $workspaceMetadataPath = Join-Path $eventFile.Directory.FullName 'workspace.yaml'
+    $workspaceMetadata = Get-WorkspaceMetadata $workspaceMetadataPath
+    if ($workspaceMetadata.ContainsKey('client_name')) {
+        $clientName = $workspaceMetadata['client_name']
+    }
 
     foreach ($line in [System.IO.File]::ReadLines($eventFile.FullName)) {
         if ([string]::IsNullOrWhiteSpace($line)) {
@@ -75,7 +99,7 @@ foreach ($eventFile in $eventFiles) {
         }
 
         if ($event.data.context.hostType) {
-            $hostType = Convert-HostType ([string]$event.data.context.hostType)
+            $repoLocation = Convert-RepoLocation ([string]$event.data.context.hostType)
         }
 
         switch ($event.type) {
@@ -152,7 +176,8 @@ foreach ($eventFile in $eventFiles) {
         EndTimeUtc               = $endTimeUtc
         Repository               = $repository
         Branch                   = $branch
-        HostType                 = $hostType
+        RepoLocation             = $repoLocation
+        ClientName               = $clientName
         InitialModel             = $initialModel
         Models                   = (($models | Sort-Object) -join ';')
         UserMessages             = $userMessages
